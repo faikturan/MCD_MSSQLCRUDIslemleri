@@ -41,17 +41,24 @@ namespace MCD_MSSQLCRUDIslemleri
         {
             try
             {
-                if (txtBulID.Text != "")
-                {
-                    SqlCommand cmd = new SqlCommand("select * from Products where ProductID = @pID", conn);
-                    cmd.Parameters.AddWithValue("@pID", txtBulID.Text);
-
+                conn.Open();
+                SqlCommand cmd = new SqlCommand("select * from Products where ProductID = @pID", conn);
+                cmd.Parameters.AddWithValue("@pID", txtBulID.Text);
+                object varMi = cmd.ExecuteScalar();
+                cmd.Parameters.Clear();
+                if (varMi != null)
+                { 
                     SqlDataAdapter adap = new SqlDataAdapter(cmd);
                     DataTable tablo = new DataTable();
                     adap.Fill(tablo);
 
                     dataGridView1.DataSource = tablo;
                 }
+                else
+                {
+                    MessageBox.Show("ID yok.");
+                }
+                
                
             }
             catch (Exception ex)
@@ -59,6 +66,7 @@ namespace MCD_MSSQLCRUDIslemleri
 
                 MessageBox.Show(ex.ToString());
             }
+            conn.Close();
         }
 
         private void btnEkle_Click(object sender, EventArgs e)
@@ -113,7 +121,14 @@ namespace MCD_MSSQLCRUDIslemleri
 
         private void btnSil_Click(object sender, EventArgs e)
         {
-
+            conn.Open();
+            string deleteSorgu = "delete from Products where ProductID = @pID";
+            cmd = new SqlCommand(deleteSorgu, conn);
+            cmd.Parameters.AddWithValue("@pID", id);
+            cmd.ExecuteNonQuery();
+            MessageBox.Show("Silindi...");
+            UrunGetir("Select * from Products");
+            conn.Close();
         }
     }
 }
